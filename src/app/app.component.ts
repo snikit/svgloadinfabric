@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import * as fromFabric from "fabric";
+import {TEST_PLAN} from './plan'
 
 fromFabric.fabric.Object.prototype.noScaleCache = false;
 
@@ -9,7 +10,7 @@ fromFabric.fabric.Object.prototype.noScaleCache = false;
   styleUrls: ["./app.component.css"]
 })
 export class AppComponent implements OnInit {
-  shadow = new fromFabric.fabric.Shadow({
+  shadow =null && new fromFabric.fabric.Shadow({
     color: "#B7BABC",
     blur: 4,
     offsetX: 2,
@@ -19,11 +20,11 @@ export class AppComponent implements OnInit {
     nonScaling: true
   });
 
-  canvas: fromFabric.fabric.Canvas;
+  canvas: fromFabric.fabric.StaticCanvas;
   stacking = false;
   baseSvgPath = TEST_SVG; //"/assets/sofa.svg";
   dims = {
-    height: 700,
+    height: 800,
     width: 1000
   };
   caching = true;
@@ -35,12 +36,32 @@ export class AppComponent implements OnInit {
   activateListener() {
     this.canvas.on({
       "mouse:down": e => {
+        console.log(e.target)
+        console.error(e.target.saveState()) // same same
         // fromFabric.fabric.Object.prototype.objectCaching = true;
       },
       "mouse:up": e => {
         // fromFabric.fabric.Object.prototype.objectCaching = false;
       }
     });
+
+
+    this.canvas.on('mouse:wheel', (opt)=> {
+
+const me =<MouseEvent>opt.e;
+
+      //@ts-ignore
+  const delta = me.deltaY;
+  let zoom = this.canvas.getZoom();
+  zoom = zoom + delta/200;
+  if (zoom > 20) zoom = 20;
+  if (zoom < 0.01) zoom = 0.01;
+  //@ts-ignore
+  this.canvas.zoomToPoint({ x: me.offsetX, y: me.offsetY }, zoom);
+  opt.e.preventDefault();
+  opt.e.stopPropagation();
+});
+    
   }
 
   init() {
@@ -59,6 +80,8 @@ export class AppComponent implements OnInit {
     this.canvas.setHeight(height);
     this.canvas.setWidth(width);
     this.activateListener();
+
+
   }
 
   clearcanvas() {
@@ -121,6 +144,24 @@ export class AppComponent implements OnInit {
       });
     });
   }
+
+
+  loadPlan(){
+
+    this.canvas.loadFromJSON(TEST_PLAN,()=>{
+      this.canvas.requestRenderAll()
+    })
+
+    this.translate()
+  }
+
+
+  translate(){
+     this.canvas.viewportTransform[4] =
+        this.canvas.viewportTransform[4] + 1000 / 2;
+      this.canvas.viewportTransform[5] =
+        this.canvas.viewportTransform[5] + 800/ 2;
+  }
 }
 
 const TEST_SVG = `<?xml version="1.0" encoding="UTF-8"?>
@@ -153,3 +194,5 @@ const TEST_SVG = `<?xml version="1.0" encoding="UTF-8"?>
   </g>
 </svg>
             `;
+
+
