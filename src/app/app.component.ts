@@ -1,6 +1,13 @@
+const IMAGE_SMOOTHING = false
+const  CACHING =false
+
+
+
+
+
 import { Component, OnInit } from "@angular/core";
 import * as fromFabric from "fabric";
-import {TEST_PLAN} from './plan'
+import { TEST_PLAN } from "./plan";
 
 fromFabric.fabric.Object.prototype.noScaleCache = false;
 
@@ -10,15 +17,19 @@ fromFabric.fabric.Object.prototype.noScaleCache = false;
   styleUrls: ["./app.component.css"]
 })
 export class AppComponent implements OnInit {
-  shadow =null && new fromFabric.fabric.Shadow({
-    color: "#B7BABC",
-    blur: 4,
-    offsetX: 2,
-    offsetY: 2,
-    affectStroke: true,
-    includeDefaultValues: true,
-    nonScaling: true
-  });
+  caching = CACHING;
+imageSmoothing = IMAGE_SMOOTHING;
+  shadow =
+    null &&
+    new fromFabric.fabric.Shadow({
+      color: "#B7BABC",
+      blur: 4,
+      offsetX: 2,
+      offsetY: 2,
+      affectStroke: true,
+      includeDefaultValues: true,
+      nonScaling: true
+    });
 
   canvas: fromFabric.fabric.StaticCanvas;
   stacking = false;
@@ -27,7 +38,6 @@ export class AppComponent implements OnInit {
     height: 800,
     width: 1000
   };
-  caching = true;
 
   ngOnInit() {
     this.init();
@@ -36,8 +46,8 @@ export class AppComponent implements OnInit {
   activateListener() {
     this.canvas.on({
       "mouse:down": e => {
-        console.log(e.target)
-        console.error(e.target.saveState()) // same same
+        console.log(e.target);
+        // console.error(e.target.saveState()); // same same
         // fromFabric.fabric.Object.prototype.objectCaching = true;
       },
       "mouse:up": e => {
@@ -45,23 +55,20 @@ export class AppComponent implements OnInit {
       }
     });
 
-
-    this.canvas.on('mouse:wheel', (opt)=> {
-
-const me =<MouseEvent>opt.e;
+    this.canvas.on("mouse:wheel", opt => {
+      const me = <MouseEvent>opt.e;
 
       //@ts-ignore
-  const delta = me.deltaY;
-  let zoom = this.canvas.getZoom();
-  zoom = zoom + delta/200;
-  if (zoom > 20) zoom = 20;
-  if (zoom < 0.01) zoom = 0.01;
-  //@ts-ignore
-  this.canvas.zoomToPoint({ x: me.offsetX, y: me.offsetY }, zoom);
-  opt.e.preventDefault();
-  opt.e.stopPropagation();
-});
-    
+      const delta = me.deltaY;
+      let zoom = this.canvas.getZoom();
+      zoom = zoom + delta / 200;
+      if (zoom > 20) zoom = 20;
+      if (zoom < 0.01) zoom = 0.01;
+      //@ts-ignore
+      this.canvas.zoomToPoint({ x: me.offsetX, y: me.offsetY }, zoom);
+      opt.e.preventDefault();
+      opt.e.stopPropagation();
+    });
   }
 
   init() {
@@ -70,7 +77,7 @@ const me =<MouseEvent>opt.e;
     let { height, width } = this.dims;
 
     this.canvas = new fromFabric.fabric.Canvas("c", {
-      imageSmoothingEnabled: true,
+      imageSmoothingEnabled: this.imageSmoothing,
       enableRetinaScaling: true,
       preserveObjectStacking: this.stacking,
       backgroundColor: "transparent",
@@ -80,9 +87,9 @@ const me =<MouseEvent>opt.e;
     this.canvas.setHeight(height);
     this.canvas.setWidth(width);
     this.activateListener();
-
-
   }
+
+   
 
   clearcanvas() {
     this.canvas.clear().renderAll();
@@ -96,6 +103,38 @@ const me =<MouseEvent>opt.e;
     max = Math.floor(max);
 
     return 50 * this.i; //Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  addCustom(customSVG: string) {
+    this.fetchUsingFabric(customSVG).then(
+      asset => {
+        const pt = this.randomPoint();
+
+        asset.set({
+          left: pt.x,
+          top: pt.y
+        });
+
+        asset.setShadow(this.shadow);
+        this.setCaching(asset);
+        this.canvas.add(asset);
+      },
+      rej => {}
+    );
+  }
+
+  setCaching(asset: fromFabric.fabric.Object) {
+    if (this.caching) {
+      return;
+    }
+
+    asset.objectCaching = this.caching;
+
+    //@ts-ignore
+    asset.getObjects &&
+      asset.getObjects().forEach(obj => {
+        obj.objectCaching = this.caching;
+      });
   }
 
   randomPoint() {
@@ -119,7 +158,7 @@ const me =<MouseEvent>opt.e;
             left: pt.x,
             top: pt.y
           });
-
+          this.setCaching(asset);
           asset.setShadow(this.shadow);
 
           this.canvas.add(asset);
@@ -145,22 +184,19 @@ const me =<MouseEvent>opt.e;
     });
   }
 
+  loadPlan() {
+    this.canvas.loadFromJSON(TEST_PLAN, () => {
+      this.canvas.requestRenderAll();
+    });
 
-  loadPlan(){
-
-    this.canvas.loadFromJSON(TEST_PLAN,()=>{
-      this.canvas.requestRenderAll()
-    })
-
-    this.translate()
+    this.translate();
   }
 
-
-  translate(){
-     this.canvas.viewportTransform[4] =
-        this.canvas.viewportTransform[4] + 1000 / 2;
-      this.canvas.viewportTransform[5] =
-        this.canvas.viewportTransform[5] + 800/ 2;
+  translate() {
+    this.canvas.viewportTransform[4] =
+      this.canvas.viewportTransform[4] + 1000 / 2;
+    this.canvas.viewportTransform[5] =
+      this.canvas.viewportTransform[5] + 800 / 2;
   }
 }
 
@@ -194,5 +230,3 @@ const TEST_SVG = `<?xml version="1.0" encoding="UTF-8"?>
   </g>
 </svg>
             `;
-
-

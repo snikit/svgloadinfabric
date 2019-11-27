@@ -1,5 +1,10 @@
 <!-- <button style="margin: 10px" (click)="redo()">redo</button> -->
 <!-- <button style="margin: 10px" (click)="undo()">undo</button> -->
+
+customsvg : <input type="text" #SVG />
+<button style="margin: 10px" (click)="addCustom(SVG.value)">
+  load custom
+</button>
 no of svgs : <input type="text" #LOAD value="1" />
 <button style="margin: 10px" (click)="addSvg(LOAD.value)">
   load
@@ -8,11 +13,11 @@ no of svgs : <input type="text" #LOAD value="1" />
 <br />
 <button (click)="caching = !caching">caching {{ caching }}</button>
 <button (click)="loadPlan()">load plan</button>
-<button
+<!-- <button
   (click)="stacking = !stacking; canvas.preserveObjectStacking = stacking"
 >
   stacking {{ stacking }}
-</button>
+</button> -->
 location : {{ i * 50 }} , {{ i * 50 }}
 
 <br />
