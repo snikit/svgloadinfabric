@@ -1,13 +1,9 @@
-const IMAGE_SMOOTHING = true
-const  CACHING =true
-
-
-
-
-
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, AfterViewInit } from "@angular/core";
 import * as fromFabric from "fabric";
 import { TEST_PLAN } from "./plan";
+
+const IMAGE_SMOOTHING = true;
+const CACHING = true;
 
 fromFabric.fabric.Object.prototype.noScaleCache = false;
 
@@ -16,9 +12,9 @@ fromFabric.fabric.Object.prototype.noScaleCache = false;
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css"]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   caching = CACHING;
-imageSmoothing = IMAGE_SMOOTHING;
+  imageSmoothing = IMAGE_SMOOTHING;
   shadow =
     null &&
     new fromFabric.fabric.Shadow({
@@ -31,16 +27,22 @@ imageSmoothing = IMAGE_SMOOTHING;
       nonScaling: true
     });
 
-  canvas: fromFabric.fabric.StaticCanvas;
-  stacking = false;
+  canvas: fromFabric.fabric.Canvas;
+  stacking = true;
   baseSvgPath = TEST_SVG; //"/assets/sofa.svg";
   dims = {
     height: 800,
-    width: 1000
+    width: 400
   };
+
+  dcanvas: HTMLCanvasElement;
 
   ngOnInit() {
     this.init();
+  }
+
+  ngAfterViewInit() {
+    this.dcanvas = document.querySelector("#d");
   }
 
   activateListener() {
@@ -71,6 +73,18 @@ imageSmoothing = IMAGE_SMOOTHING;
     });
   }
 
+  clear2() {
+    const destCtx = this.dcanvas.getContext("2d");
+    destCtx.clearRect(0, 0, this.dcanvas.width, this.dcanvas.height);
+  }
+
+  random() {
+    //@ts-ignore
+    const canvas = this.canvas.toCanvasElement();
+    const destCtx = this.dcanvas.getContext("2d");
+    destCtx.drawImage(canvas, 0, 0);
+  }
+
   init() {
     // fromFabric.fabric.Object.prototype.objectCaching = false;
 
@@ -89,8 +103,6 @@ imageSmoothing = IMAGE_SMOOTHING;
     this.activateListener();
   }
 
-   
-
   clearcanvas() {
     this.canvas.clear().renderAll();
     this.canvas.backgroundColor = "transparent";
@@ -102,7 +114,7 @@ imageSmoothing = IMAGE_SMOOTHING;
     min = Math.ceil(min);
     max = Math.floor(max);
 
-    return 50 * this.i; //Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(Math.random() * (max - min + 1)) + min; //50 * this.i;
   }
 
   addCustom(customSVG: string) {
@@ -131,8 +143,8 @@ imageSmoothing = IMAGE_SMOOTHING;
     asset.objectCaching = this.caching;
 
     //@ts-ignore
-    asset.getObjects &&
-      asset.getObjects().forEach(obj => {
+    asset["getObjects"] &&
+      asset["getObjects"].forEach(obj => {
         obj.objectCaching = this.caching;
       });
   }
