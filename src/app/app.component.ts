@@ -1,5 +1,5 @@
-const IMAGE_SMOOTHING = false
-const  CACHING =false
+const IMAGE_SMOOTHING = true
+const  CACHING =true
 
 
 
