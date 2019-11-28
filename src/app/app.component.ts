@@ -16,16 +16,17 @@ export class AppComponent implements OnInit, AfterViewInit {
   caching = CACHING;
   imageSmoothing = IMAGE_SMOOTHING;
   shadow =
-    null &&
-    new fromFabric.fabric.Shadow({
-      color: "#B7BABC",
-      blur: 4,
-      offsetX: 2,
-      offsetY: 2,
-      affectStroke: true,
-      includeDefaultValues: true,
-      nonScaling: true
-    });
+    null ;
+    // &&
+    // new fromFabric.fabric.Shadow({
+    //   color: "#B7BABC",
+    //   blur: 4,
+    //   offsetX: 2,
+    //   offsetY: 2,
+    //   affectStroke: true,
+    //   includeDefaultValues: true,
+    //   nonScaling: true
+    // });
 
   canvas: fromFabric.fabric.Canvas;
   stacking = true;
